@@ -3,22 +3,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
 import sklearn.datasets
-import sklearn.linear_model
-import matplotlib
+
+np.random.seed(0)
 
 # Define the size of the board
 board_dimension = 3
-
-# Display plots inline and change default figure size
-matplotlib.rcParams['figure.figsize'] = (10.0, 8.0)
-
-# Generate a dataset
-np.random.seed(0)
 n_spaces = board_dimension*board_dimension
 nn_input_dim = n_spaces # input layer dimensionality
 nn_output_dim = n_spaces # output layer dimensionality
 
-X = np.array([[0,0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,2,0],[0,0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,1,0]])
+# Generate a dataset
+X = np.array([[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,2,0],[1,0,0,0,0,0,0,1,0],[1,0,0,0,0,0,0,1,0]])
 y = np.array([[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0.2,0.8,0],[0,0,0,0,0,0,0.7,0.3,0],[0,0,0,0,0,0,0.7,0.3,0]])
 
 # Gradient descent parameters (I picked these by hand)
@@ -109,7 +104,7 @@ class NN:
             # Optionally print the loss.
             # This is expensive because it uses the whole dataset, so we don't want to do it too often.
             if print_loss and i % 1000 == 0:
-              print("Loss after iteration " + repr(i) + ": " + repr(self.calculate_loss(X, y)))
+              print("Loss after iteration " + repr(i) + ": " + repr(self.__calculate_loss__(X, y)))
 
         # Assign new parameters to the model
         model = { 'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
@@ -131,11 +126,13 @@ class NN:
         return np.argmax(probs, axis=1)
 
 # Build a model with a n-dimensional hidden layer
-model = build_model(3, print_loss=True)
+clf = NN(10)
 
-print(predict(model,X[0]))
-print(predict(model,X[1]))
-print(predict(model,X[2]))
-print(predict(model,X[3]))
-print(predict(model,X[4]))
+clf.train(X, y, print_loss=True)
+
+for i in range(len(X)):
+    print(clf.predict(X[i]))
+
+print(clf.predict(np.array([0,0,0,0,0,0,0,1,1])))
+
 print("done!")
