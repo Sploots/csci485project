@@ -6,41 +6,20 @@ import sklearn.datasets
 import sklearn.linear_model
 import matplotlib
 
+# Define the size of the board
+board_dimension = 3
+
 # Display plots inline and change default figure size
 matplotlib.rcParams['figure.figsize'] = (10.0, 8.0)
 
-# Generate a dataset and plot it
+# Generate a dataset
 np.random.seed(0)
-X, y = sklearn.datasets.make_moons(200, noise=0.20)
-plt.scatter(X[:,0], X[:,1], s=40, c=y, cmap=plt.cm.Spectral)
-
-# Train the logistic rgeression classifier
-clf = sklearn.linear_model.LogisticRegressionCV()
-clf.fit(X, y)
-
-# Helper function to plot a decision boundary.
-# If you don't fully understand this function don't worry, it just generates the contour plot below.
-def plot_decision_boundary(pred_func):
-    # Set min and max values and give it some padding
-    x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
-    y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
-    h = 0.01
-    # Generate a grid of points with distance h between them
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-    # Predict the function value for the whole gid
-    Z = pred_func(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-    # Plot the contour and training examples
-    plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral)
-    plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
-
-# Plot the decision boundary
-plot_decision_boundary(lambda x: clf.predict(x))
-plt.title("Logistic Regression")
-
+n_spaces = board_dimension*board_dimension
+nn_input_dim = n_spaces # input layer dimensionality
+nn_output_dim = n_spaces # output layer dimensionality
+X = np.array([[0,0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,-1,0],[0,0,0,0,0,0,0,-1,0]])
+y = np.array([[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0.2,0.8,0],[0,0,0,0,0,0,0.7,0.3,0],[0,0,0,0,0,0,0.7,0.3,0]])
 num_examples = len(X) # training set size
-nn_input_dim = 2 # input layer dimensionality
-nn_output_dim = 2 # output layer dimensionality
 
 # Gradient descent parameters (I picked these by hand)
 epsilon = 0.01 # learning rate for gradient descent
@@ -55,9 +34,13 @@ def calculate_loss(model):
     z2 = a1.dot(W2) + b2
     exp_scores = np.exp(z2)
     probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    correct_logprobs = []
     # Calculating the loss
-    corect_logprobs = -np.log(probs[range(num_examples), y])
-    data_loss = np.sum(corect_logprobs)
+    for j in range(num_examples):
+        example_probs = probs[j]
+        correct_logprobs.append(np.multiply(-np.log(example_probs),y[j]))
+    ##corect_logprobs = -np.log(probs[range(num_examples), y])
+    data_loss = np.sum(correct_logprobs)
     # Add regulatization term to loss (optional)
     data_loss += reg_lambda/2 * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
     return 1./num_examples * data_loss
@@ -98,10 +81,17 @@ def build_model(nn_hdim, num_passes=20000, print_loss=False):
         z2 = a1.dot(W2) + b2
         exp_scores = np.exp(z2)
         probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-
+        ##print(probs)
         # Backpropagation
         delta3 = probs
-        delta3[range(num_examples), y] -= 1
+        #print(range(num_examples))
+        #print(y)
+        for j in range(num_examples):
+            example_probs = probs[j]
+            ##print(example_probs)
+            for k in range(nn_output_dim):
+                example_probs[k] -= y[j][k]
+#        delta3[range(num_examples), y] -= 1
         dW2 = (a1.T).dot(delta3)
         db2 = np.sum(delta3, axis=0, keepdims=True)
         delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
@@ -125,22 +115,15 @@ def build_model(nn_hdim, num_passes=20000, print_loss=False):
         # This is expensive because it uses the whole dataset, so we don't want to do it too often.
         if print_loss and i % 1000 == 0:
           print("Loss after iteration " + repr(i) + ": " + repr(calculate_loss(model)))
-    
+
     return model
 
-# Build a model with a 3-dimensional hidden layer
+# Build a model with a n-dimensional hidden layer
 model = build_model(3, print_loss=True)
 
-# Plot the decision boundary
-plot_decision_boundary(lambda x: predict(model, x))
-plt.title("Decision Boundary for hidden layer size 3")
-
-plt.figure(figsize=(16, 32))
-hidden_layer_dimensions = [1, 2, 3, 4, 5, 20, 50]
-for i, nn_hdim in enumerate(hidden_layer_dimensions):
-    plt.subplot(5, 2, i+1)
-    plt.title('Hidden Layer size %d' % nn_hdim)
-    model = build_model(nn_hdim)
-    plot_decision_boundary(lambda x: predict(model, x))
-
-plt.show()
+print(predict(model,X[0]))
+print(predict(model,X[1]))
+print(predict(model,X[2]))
+print(predict(model,X[3]))
+print(predict(model,X[3]))
+print("done!")
