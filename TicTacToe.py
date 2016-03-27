@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class TicTacToe:
     dimx = None
@@ -32,7 +33,7 @@ class TicTacToe:
 
         self.turn = 0
         self.board = newboard
-        self.boardlist = newboardlist
+        self.boardlist = np.array(newboardlist)
         self.won = False
 
     def winner(self):
@@ -42,18 +43,10 @@ class TicTacToe:
         k = self.k
         foundwinner = False
 
-        for row in range(dimy-k):
-            for col in range(dimx-k):
+        for row in range(dimy-k+1):
+            for col in range(dimx):
                 if board[row][col] == ' ':
                     continue
-
-                # check for k-in-a-row horizontal
-                if not foundwinner:
-                    foundwinner = True
-                    for i in range(1,k):
-                        if board[row][col] != board[row][col+i]:
-                            foundwinner = False
-                            break;
 
                 # check for k-in-a-row vertical
                 if not foundwinner:
@@ -62,6 +55,18 @@ class TicTacToe:
                         if board[row][col] != board[row+i][col]:
                             foundwinner = False
                             break;
+
+                if foundwinner:
+                    self.won = True
+                    if (board[row][col] == 'X'):
+                        return -1
+                    elif board[row][col] == '@':
+                        return 1
+
+        for row in range(dimy-k+1):
+            for col in range(dimx-k+1):
+                if board[row][col] == ' ':
+                    continue
 
                 # check for k-in-a-row lower right diagonal
                 if not foundwinner:
@@ -78,8 +83,30 @@ class TicTacToe:
                     elif board[row][col] == '@':
                         return 1
 
+
+        for row in range(dimy):
+            for col in range(dimx-k+1):
+                if board[row][col] == ' ':
+                    continue
+
+                # check for k-in-a-row horizontal
+                if not foundwinner:
+                    foundwinner = True
+                    for i in range(1,k):
+                        if board[row][col] != board[row][col+i]:
+                            foundwinner = False
+                            break;
+
+                if foundwinner:
+                    self.won = True
+                    if (board[row][col] == 'X'):
+                        return -1
+                    elif board[row][col] == '@':
+                        return 1
+
+
         for row in range(k-1,dimy):
-            for col in range(dimx-k):
+            for col in range(dimx-k+1):
                 if board[row][col] == ' ':
                     continue
 
@@ -96,6 +123,10 @@ class TicTacToe:
                         return -1
                     elif board[row][col] == '@':
                         return 1
+
+        if self.turn == dimx*dimy:
+            self.won = True
+            return 2
 
         return 0
 
@@ -171,32 +202,3 @@ class TicTacToe:
                 print(line)
 
         print("")
-
-Game = TicTacToe(11,15,4)
-Game.addmark(1)
-Game.printboard()
-print(Game.winner())
-Game.addmark(8)
-Game.printboard()
-print(Game.winner())
-Game.addmark(13)
-Game.printboard()
-print(Game.winner())
-Game.addmark(14)
-Game.printboard()
-print(Game.winner())
-Game.addmark(23)
-Game.printboard()
-print(Game.winner())
-Game.addmark(26)
-Game.printboard()
-print(Game.winner())
-Game.addmark(33)
-Game.printboard()
-print(Game.winner())
-Game.addmark(34)
-Game.printboard()
-print(Game.winner())
-Game.addmark(3)
-Game.printboard()
-print(Game.winner())
