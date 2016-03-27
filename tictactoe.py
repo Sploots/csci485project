@@ -1,28 +1,30 @@
 import math
-from termcolor import colored
 
 class TicTacToe:
-    dim = None
+    dimx = None
+    dimy = None
     k = None
     turn = None
     board = None
     boardlist = None
     won = None
 
-    def __init__(self, dim, k=3):
-        self.dim = dim
+    def __init__(self, dimx=3, dimy=3, k=3):
+        self.dimx = dimx
+        self.dimy = dimy
         self.k = k
         self.boardclear()
         
     def boardclear(self):
-        dim = self.dim
+        dimx = self.dimx
+        dimy = self.dimy
         newboard = []
         newboardlist = []
 
-        for i in range(dim):
+        for i in range(dimy):
             row = []
 
-            for j in range(dim):
+            for j in range(dimx):
                 row.append(" ")
                 newboardlist.append(0)
 
@@ -35,12 +37,13 @@ class TicTacToe:
 
     def winner(self):
         board = self.board
-        dim = self.dim
+        dimx = self.dimx
+        dimy = self.dimy
         k = self.k
         foundwinner = False
 
-        for row in range(dim-k):
-            for col in range(dim-k):
+        for row in range(dimy-k):
+            for col in range(dimx-k):
                 if board[row][col] == ' ':
                     continue
 
@@ -75,8 +78,8 @@ class TicTacToe:
                     elif board[row][col] == '@':
                         return 1
 
-        for row in range(k-1,dim):
-            for col in range(dim-k):
+        for row in range(k-1,dimy):
+            for col in range(dimx-k):
                 if board[row][col] == ' ':
                     continue
 
@@ -103,9 +106,10 @@ class TicTacToe:
         board = self.board
         boardlist = self.boardlist
         turn = self.turn
-        dim = self.dim
-        row = int(math.floor(n/dim))
-        col = int(n%dim)
+        dimx = self.dimx
+        dimy = self.dimy
+        row = int(math.floor(n/dimx))
+        col = int(n%dimx)
 
         if board[row][col] != ' ':
             return False
@@ -127,16 +131,17 @@ class TicTacToe:
         print("")
 
         board = self.board
-        dim = self.dim        
-        size = len(str(dim*dim - 1))
+        dimx = self.dimx
+        dimy = self.dimy
+        size = len(str(dimx*dimy - 1))
 
-        for row in range(dim):
+        for row in range(dimy):
             line = ""
-            for col in range(dim):
+            for col in range(dimx):
                 i = 0
                 while i < size:
                     if board[row][col] == " " and i == 0:
-                        pos = row*dim + col
+                        pos = row*dimx + col
                         line += repr(pos)
 
                         for j in range(len(str(pos))-1):
@@ -153,21 +158,21 @@ class TicTacToe:
 
                     i += 1
 
-                if col < dim-1:
+                if col < dimx-1:
                     line += "|"
 
             print(line)
 
-            if row < dim-1:
+            if row < dimy-1:
                 line = ""
-                for i in range(size*dim + dim-1):
+                for i in range(size*dimx + dimx-1):
                     line += "-"
 
                 print(line)
 
         print("")
 
-Game = TicTacToe(11,4)
+Game = TicTacToe(11,15,4)
 Game.addmark(1)
 Game.printboard()
 print(Game.winner())

@@ -6,22 +6,21 @@ import sklearn.datasets
 
 np.random.seed(0)
 
-# Define the size of the board
-board_dimension = 3
-n_spaces = board_dimension*board_dimension
-
-# Generate a dataset
-X = np.array([[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,2,0],[1,0,0,0,0,0,0,1,0],[1,0,0,0,0,0,0,1,0]])
-y = np.array([[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0.2,0.8,0],[0,0,0,0,0,0,0.7,0.3,0],[0,0,0,0,0,0,0.7,0.3,0]])
-
-# Gradient descent parameters (I picked these by hand)
-epsilon = 0.01 # learning rate for gradient descent
-reg_lambda = 0.01 # regularization strength
-
 class NN:
     model = {}
+    nn_hdim = None
+    nn_input_dim = None
+    nn_output_dim = None
+
+    # Gradient descent parameters (I picked these by hand)
+    epsilon = 0.01 # learning rate for gradient descent
+    reg_lambda = 0.01 # regularization strength
 
     def __init__(self, nn_hdim, nn_input_dim, nn_output_dim):
+        self.nn_hdim = nn_hdim
+        self.nn_input_dim = nn_input_dim
+        self.nn_output_dim = nn_output_dim
+
         W1 = np.random.randn(nn_input_dim, nn_hdim) / np.sqrt(nn_input_dim)
         b1 = np.zeros((1, nn_hdim))
         W2 = np.random.randn(nn_hdim, nn_output_dim) / np.sqrt(nn_hdim)
@@ -36,6 +35,7 @@ class NN:
         num_examples = len(X)
 
         model = self.model
+        reg_lambda = self.reg_lambda
         W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
 
         # Forward propagation to calculate our predictions
@@ -61,10 +61,13 @@ class NN:
     # - nn_hdim: Number of nodes in the hidden layer
     # - num_passes: Number of passes through the training data for gradient descent
     # - print_loss: If True, print the loss every 1000 iterations
-    def train(self, X, y, num_passes=20000, print_loss=False):
+    def train(self, X, y, num_passes=3000, print_loss=False):
         num_examples = len(X)
 
         model = self.model
+        epsilon = self.epsilon
+        reg_lambda = self.reg_lambda
+        nn_output_dim = self.nn_output_dim
         W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
 
         # Gradient descent. For each batch...
@@ -123,16 +126,41 @@ class NN:
 
         return np.argmax(probs, axis=1)
 
+    def probs(self, x):
+        model = self.model
+        W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
+
+        # Forward propagation
+        z1 = x.dot(W1) + b1
+        a1 = np.tanh(z1)
+        z2 = a1.dot(W2) + b2
+        exp_scores = np.exp(z2)
+        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+        return probs
+
+# Define the size of the board
+board_dimension = 3
+n_spaces = board_dimension*board_dimension
+
 # Build a model with a n-dimensional hidden layer
-clf = NN(10, n_spaces, n_spaces)
+clf = NN(100, n_spaces, n_spaces)
 
-clf.train(X, y, print_loss=True)
+# Generate a dataset
+X1 = np.array([[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1]])
+y1 = np.array([[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0,0]])
 
-#for i in range(len(X)):
-#    print(clf.predict(X[i]))
+clf.train(X1, y1, print_loss=True)
+print(clf.predict(X1))
+print(clf.probs(X1))
 
-print(clf.predict(X))
 
-#print(clf.predict(np.array([0,0,0,0,0,0,0,1,1])))
+X2 = np.array([[1,0,0,0,0,0,0,2,0],[1,0,0,0,0,0,0,1,0],[1,0,0,0,0,0,0,1,0]])
+y2 = np.array([[0,0,0,0,0,0,0.2,0.8,0],[0,0,0,0,0,0,0.7,0.3,0],[0,0,0,0,0,0,0.7,0.3,0]])
 
-print("done!")
+clf.train(X2, y2, print_loss=True)
+print(clf.predict(X1))
+print(clf.probs(X1))
+print(clf.predict(X2))
+
+print("Done!")
