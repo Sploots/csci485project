@@ -9,8 +9,6 @@ np.random.seed(0)
 # Define the size of the board
 board_dimension = 3
 n_spaces = board_dimension*board_dimension
-nn_input_dim = n_spaces # input layer dimensionality
-nn_output_dim = n_spaces # output layer dimensionality
 
 # Generate a dataset
 X = np.array([[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,2,0],[1,0,0,0,0,0,0,1,0],[1,0,0,0,0,0,0,1,0]])
@@ -23,7 +21,7 @@ reg_lambda = 0.01 # regularization strength
 class NN:
     model = {}
 
-    def __init__(self, nn_hdim):
+    def __init__(self, nn_hdim, nn_input_dim, nn_output_dim):
         W1 = np.random.randn(nn_input_dim, nn_hdim) / np.sqrt(nn_input_dim)
         b1 = np.zeros((1, nn_hdim))
         W2 = np.random.randn(nn_hdim, nn_output_dim) / np.sqrt(nn_hdim)
@@ -126,13 +124,15 @@ class NN:
         return np.argmax(probs, axis=1)
 
 # Build a model with a n-dimensional hidden layer
-clf = NN(10)
+clf = NN(10, n_spaces, n_spaces)
 
 clf.train(X, y, print_loss=True)
 
-for i in range(len(X)):
-    print(clf.predict(X[i]))
+#for i in range(len(X)):
+#    print(clf.predict(X[i]))
 
-print(clf.predict(np.array([0,0,0,0,0,0,0,1,1])))
+print(clf.predict(X))
+
+#print(clf.predict(np.array([0,0,0,0,0,0,0,1,1])))
 
 print("done!")
