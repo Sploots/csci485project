@@ -8,6 +8,8 @@ from TicTacToe import TicTacToe
 np.random.seed(0)
 phi = 0.1
 
+mode = 2
+
 # Define the size of the board
 board_rows = 3
 board_cols = 3
@@ -21,7 +23,8 @@ n_games = 1000
 
 # Build a model with a n-dimensional hidden layer
 num_passes = 3000
-clf = NN(100, boardlist_size, boardlist_size)
+num_nodes = 100
+clf = NN(num_nodes, boardlist_size, boardlist_size)
 
 # Set up large lists to hold training data
 train_X_large = []
@@ -31,6 +34,9 @@ game = TicTacToe(board_rows, board_cols, k_to_win)
 
 for game_num in range(n_games):
     print("Playing game " + repr(game_num) + "...")
+
+    if mode == 2:
+        clf = NN(num_nodes, boardlist_size, boardlist_size)
 
     game.boardclear()
     turn = 0;
@@ -59,7 +65,15 @@ for game_num in range(n_games):
             ##print(spot)
             ##game.printboard()
             probs[0][spot] = 0
+
             spot = np.argmax(probs)
+
+            # prevent infinite loop
+            if np.sum(probs[0]) == 0:
+                for i in range(boardlist_size):
+                    if boardlist[i] == 0:
+                        spot = i
+                        break
 
         Y = []
 
@@ -213,14 +227,17 @@ for game_num in range(n_games):
 
             break
 
-    print("Player A:")
-    print(np.array(playerA_X))
-    print(np.array(playerA_Y))
-    print("Player B:")
-    print(np.array(playerB_X))
-    print(np.array(playerB_Y))
+    #print("Player A:")
+    #print(np.array(playerA_X))
+    #print(np.array(playerA_Y))
+    #print("Player B:")
+    #print(np.array(playerB_X))
+    #print(np.array(playerB_Y))
 
     game.printboard()
+
+    print(clf.probs(boardlist))
+
 
     train_X = playerA_X + playerB_X
     train_Y = playerA_Y + playerB_Y
@@ -228,13 +245,15 @@ for game_num in range(n_games):
     train_X_large += train_X
     train_Y_large += train_Y
 
-    train_X = np.array(train_X_large)
-    train_Y = np.array(train_Y_large)
+    if mode == 2:
+        train_X = np.array(train_X_large)
+        train_Y = np.array(train_Y_large)
+    else:
+        train_X = np.array(train_X)
+        train_Y = np.array(train_Y)
 
-    #train_X = np.array(train_X)
-    #train_Y = np.array(train_Y)
-
-    clf.train(train_X, train_Y, num_passes)
+    if not clf.train(train_X, train_Y, num_passes):
+        break
 
     if game_num % 10 == 0:
         print("Saving data...")

@@ -1,5 +1,6 @@
 # Package imports
 import numpy as np
+import math
 
 class NN:
     model = {}
@@ -72,7 +73,39 @@ class NN:
             a1 = np.tanh(z1)
             z2 = a1.dot(W2) + b2
             exp_scores = np.exp(z2)
+
+            # avoid divide-by-zero due to exponentiation of really large negative value
+            for j in range(num_examples):
+                for k in range(nn_output_dim):
+                    if exp_scores[j][k] == 0:
+                        exp_scores[j][k] = 0.00001
+
             probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+            ## REMOVE LATER
+            if math.isnan(probs[0][0]):
+                with open('errorlog', 'wb') as f:
+                    f.write("W1:")
+                    f.write(repr(W1))
+                    f.write("B1:")
+                    f.write(repr(b1))
+                    f.write("Z1:")
+                    f.write(repr(z1))
+                    f.write("A1:")
+                    f.write(repr(a1))
+                    f.write("Z2:")
+                    f.write("W2:")
+                    f.write(repr(W2))
+                    f.write("B2:")
+                    f.write(repr(b2))
+                    f.write(repr(z2))
+                    f.write("EXP_SCORES:")
+                    f.write(repr(exp_scores))
+                    f.write("EXP_SCORES:")
+                    f.write(repr(probs))
+                    f.close()
+
+                return False
 
             # Backpropagation
             delta3 = probs
@@ -96,6 +129,46 @@ class NN:
             b1 += -epsilon * db1
             W2 += -epsilon * dW2
             b2 += -epsilon * db2
+
+            ## REMOVE LATER
+            if math.isnan(W1[0][0]) or math.isnan(b1[0][0]) or math.isnan(W2[0][0]) or math.isnan(b2[0][0]):
+                with open('errorlog', 'wb') as f:
+                    f.write("delta2:")
+                    f.write(repr(delta2))
+                    f.write("delta3:")
+                    f.write(repr(delta3))
+
+                    f.write("dW1:")
+                    f.write(repr(dW1))
+                    f.write("dB1:")
+                    f.write(repr(db1))
+
+                    f.write("dW2:")
+                    f.write(repr(dW2))
+                    f.write("dB2:")
+                    f.write(repr(db2))
+
+                    f.write("W1:")
+                    f.write(repr(W1))
+                    f.write("B1:")
+                    f.write(repr(b1))
+                    f.write("Z1:")
+                    f.write(repr(z1))
+                    f.write("A1:")
+                    f.write(repr(a1))
+                    f.write("Z2:")
+                    f.write("W2:")
+                    f.write(repr(W2))
+                    f.write("B2:")
+                    f.write(repr(b2))
+                    f.write(repr(z2))
+                    f.write("EXP_SCORES:")
+                    f.write(repr(exp_scores))
+                    f.write("EXP_SCORES:")
+                    f.write(repr(probs))
+                    f.close()
+
+                return False
                      
             # Optionally print the loss.
             # This is expensive because it uses the whole dataset, so we don't want to do it too often.
@@ -106,6 +179,8 @@ class NN:
         model = { 'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
 
         self.model = model
+
+        return True
 
     # Helper function to predict an output (0 or 1)
     def predict(self, x):

@@ -9,3 +9,7 @@
 - Found bug with how the games are recorded for training
 - Issues with the NN falling into an equilibrium (spitting out same game reuslt each time, following bad moves anyways because moves chosen during losses were not penalized enough)
 - originally the penalty move was e^something and the remainder (1-penaltyscore) would be split between the other available moves, but this would lead to the penalty score being bigger than the others anyways, and so it would repeat the same move
+- found divide-by-zero error causing the values to become NaN
+- Would get stuck oscillating around the same values over and over, resulting in no new information
+- if trained in mode 1, the AI is pretty dumb
+- if trained in mode 2, the AI is still bad, but at least does some "sensical" moves (i.e. quite often, if it can win in 1 more move, it will do so)
