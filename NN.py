@@ -2,8 +2,12 @@
 import numpy as np
 import math
 
+def sigmoid(x):
+  return 1 / (1 + np.exp(-x))
+
 class NN:
     model = {}
+    act_fxn = None
     nn_hdim = None
     nn_input_dim = None
     nn_output_dim = None
@@ -12,10 +16,11 @@ class NN:
     epsilon = 0.01 # learning rate for gradient descent
     reg_lambda = 0.01 # regularization strength
 
-    def __init__(self, nn_hdim, nn_input_dim, nn_output_dim):
+    def __init__(self, nn_hdim, nn_input_dim, nn_output_dim, act_fxn="sigmoid"):
         self.nn_hdim = nn_hdim
         self.nn_input_dim = nn_input_dim
         self.nn_output_dim = nn_output_dim
+        self.act_fxn = act_fxn
 
         W1 = np.random.randn(nn_input_dim, nn_hdim) / np.sqrt(nn_input_dim)
         b1 = np.zeros((1, nn_hdim))
@@ -70,7 +75,10 @@ class NN:
         for i in range(0, num_passes):
             # Forward propagation
             z1 = X.dot(W1) + b1
-            a1 = np.tanh(z1)
+            if self.act_fxn == "sigmoid":
+                a1 = sigmoid(z1)
+            else:
+                a1 = np.tanh(z1)
             z2 = a1.dot(W2) + b2
             exp_scores = np.exp(z2)
 
@@ -116,7 +124,11 @@ class NN:
 
             dW2 = (a1.T).dot(delta3)
             db2 = np.sum(delta3, axis=0, keepdims=True)
-            delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
+            if self.act_fxn == "sigmoid":
+                delta2 = delta3.dot(W2.T) * a1*(1 - a1)
+            else:
+                delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
+            
             dW1 = np.dot(X.T, delta2)
             db1 = np.sum(delta2, axis=0)
 
@@ -189,7 +201,10 @@ class NN:
 
         # Forward propagation
         z1 = x.dot(W1) + b1
-        a1 = np.tanh(z1)
+        if self.act_fxn == "sigmoid":
+            a1 = sigmoid(z1)
+        else:
+            a1 = np.tanh(z1)
         z2 = a1.dot(W2) + b2
         exp_scores = np.exp(z2)
         probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
@@ -202,7 +217,10 @@ class NN:
 
         # Forward propagation
         z1 = x.dot(W1) + b1
-        a1 = np.tanh(z1)
+        if self.act_fxn == "sigmoid":
+            a1 = sigmoid(z1)
+        else:
+            a1 = np.tanh(z1)
         z2 = a1.dot(W2) + b2
         exp_scores = np.exp(z2)
         probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)

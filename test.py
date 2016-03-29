@@ -4,8 +4,10 @@ from NN import NN
 from TicTacToe import TicTacToe
 np.random.seed(0)
 
+clf = NN(10,9,9)
+
 # Generate a dataset
-'''X1 = np.array([[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1]])
+X1 = np.array([[1,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1]])
 y1 = np.array([[0,0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0,0]])
 
 clf.train(X1, y1, print_loss=True)
@@ -51,3 +53,4 @@ print(Game.winner())
 Game.addmark(0)
 Game.printboard()
 print(Game.winner())
+'''

@@ -19,7 +19,7 @@ boardlist_size = board_rows*board_cols
 k_to_win = 3
 
 # Define how many games to play
-n_games = 1000
+n_games = 10000
 
 # Build a model with a n-dimensional hidden layer
 num_passes = 3000
@@ -69,11 +69,11 @@ for game_num in range(n_games):
             spot = np.argmax(probs)
 
             # prevent infinite loop
-            if np.sum(probs[0]) == 0:
-                for i in range(boardlist_size):
-                    if boardlist[i] == 0:
-                        spot = i
-                        break
+#            if np.sum(probs[0]) == 0:
+#                for i in range(boardlist_size):
+#                    if boardlist[i] == 0:
+#                        spot = i
+#                        break
 
         Y = []
 
