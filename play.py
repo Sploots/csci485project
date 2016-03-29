@@ -47,6 +47,8 @@ while True:
 			else:
 				probs = clf.probs(boardlist)
 
+			print(probs)
+
 			spot = np.argmax(probs)
 
 			while not game.addmark(spot):

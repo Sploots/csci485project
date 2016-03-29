@@ -1,0 +1,11 @@
+- Got original code to work
+- Adjusted code to work with multiple input/output
+- Adjusted code to be class-based
+- Made TicTacToe game
+	- Fixed bug in win recognition
+- Made trainer
+- Made play
+- Tried to train with individual game data sets, then large data sets of all games so far
+- Found bug with how the games are recorded for training
+- Issues with the NN falling into an equilibrium (spitting out same game reuslt each time, following bad moves anyways because moves chosen during losses were not penalized enough)
+- originally the penalty move was e^something and the remainder (1-penaltyscore) would be split between the other available moves, but this would lead to the penalty score being bigger than the others anyways, and so it would repeat the same move

@@ -56,7 +56,7 @@ class NN:
     # - nn_hdim: Number of nodes in the hidden layer
     # - num_passes: Number of passes through the training data for gradient descent
     # - print_loss: If True, print the loss every 1000 iterations
-    def train(self, X, y, num_passes=3000, print_loss=False):
+    def train(self, X, y, num_passes=20000, print_loss=False):
         num_examples = len(X)
 
         model = self.model
