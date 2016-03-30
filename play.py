@@ -44,8 +44,10 @@ while True:
 
 			if turn%2:
 				probs = clf.probs(-1*boardlist)
+				print(-1*boardlist)
 			else:
 				probs = clf.probs(boardlist)
+				print(boardlist)
 
 			print(probs)
 

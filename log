@@ -13,3 +13,5 @@
 - Would get stuck oscillating around the same values over and over, resulting in no new information
 - if trained in mode 1, the AI is pretty dumb
 - if trained in mode 2, the AI is still bad, but at least does some "sensical" moves (i.e. quite often, if it can win in 1 more move, it will do so)
+- fixed overflow problem
+- testing to see if I rewarding ties works better

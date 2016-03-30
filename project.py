@@ -9,7 +9,7 @@ np.random.seed(0)
 phi = 0.1
 
 mode = 2
-continue_mode = True
+continue_mode = False
 
 # Define the size of the board
 board_rows = 3
@@ -24,7 +24,7 @@ n_games = 10000
 
 # Build a model with a n-dimensional hidden layer
 num_passes = 3000
-num_nodes = 100
+num_nodes = 300
 
 game_startindex = 0
 
@@ -121,55 +121,17 @@ for game_num in range(game_startindex, n_games):
 
         elif winner == 2:
             print("It's a tie!")
-            for i in range(len(playerB_Y)):
-                penalty = math.exp(-phi*(len(playerB_Y)-i))
-                ##print("Penalty for entry " + repr(i) + ": " + repr(penalty))
-                ##print("Penalty:")
-                ##print(penalty)
-
-                # count how many open spots there are
-                count = 1
-                for j in range(boardlist_size):
-                    if playerB_Y[i][j] == 0:
-                        count += 1
-
-                split_prob = 1/float(count)
-                if count-1 > 0:
-                    othermove_prob = split_prob*(1+penalty/(count-1))
-                chosenmove_prob = split_prob*(1-penalty)
-
-                for j in range(boardlist_size):
-                    if playerB_Y[i][j] == 0:
-                        playerB_Y[i][j] = othermove_prob
-                    elif playerB_Y[i][j] == -1:
-                        playerB_Y[i][j] = 0
-                    elif playerB_Y[i][j] == 1:
-                        playerB_Y[i][j] = chosenmove_prob
-
+            # change all the y values for unavailable spots to 0
             for i in range(len(playerA_Y)):
-                penalty = math.exp(-phi*(len(playerA_Y)-i))
-                ##print("Penalty for entry " + repr(i) + ": " + repr(penalty))
-                ##print("Penalty:")
-                ##print(penalty)
-
-                # count how many open spots there are
-                count = 1
                 for j in range(boardlist_size):
-                    if playerA_Y[i][j] == 0:
-                        count += 1
-
-                split_prob = 1/float(count)
-                if count-1 > 0:
-                    othermove_prob = split_prob*(1+penalty/(count-1))
-                chosenmove_prob = split_prob*(1-penalty)
-
-                for j in range(boardlist_size):
-                    if playerA_Y[i][j] == 0:
-                        playerA_Y[i][j] = othermove_prob
-                    elif playerA_Y[i][j] == -1:
+                    if playerA_Y[i][j] == -1:
                         playerA_Y[i][j] = 0
-                    elif playerA_Y[i][j] == 1:
-                        playerA_Y[i][j] = chosenmove_prob
+
+            # change all the y values for unavailable spots to 0
+            for i in range(len(playerB_Y)):
+                for j in range(boardlist_size):
+                    if playerB_Y[i][j] == -1:
+                        playerB_Y[i][j] = 0
 
             break
 
@@ -245,12 +207,14 @@ for game_num in range(game_startindex, n_games):
 
             break
 
-    #print("Player A:")
-    #print(np.array(playerA_X))
-    #print(np.array(playerA_Y))
-    #print("Player B:")
-    #print(np.array(playerB_X))
-    #print(np.array(playerB_Y))
+    print("Player A_X:")
+    print(np.array(playerA_X))
+    print("Player A_Y:")
+    print(np.array(playerA_Y))
+    print("Player B_X:")
+    print(np.array(playerB_X))
+    print("Player B_Y:")
+    print(np.array(playerB_Y))
 
     game.printboard()
 
