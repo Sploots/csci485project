@@ -9,6 +9,7 @@ np.random.seed(0)
 phi = 0.1
 
 mode = 2
+continue_mode = True
 
 # Define the size of the board
 board_rows = 3
@@ -24,15 +25,32 @@ n_games = 10000
 # Build a model with a n-dimensional hidden layer
 num_passes = 3000
 num_nodes = 100
-clf = NN(num_nodes, boardlist_size, boardlist_size)
 
-# Set up large lists to hold training data
-train_X_large = []
-train_Y_large = []
+game_startindex = 0
+
+if continue_mode:
+    with open('NN' + repr(board_rows) + repr(board_cols), 'rb') as f:
+        clf = pickle.load(f)
+        f.close()
+    with open('TrainX' + repr(board_rows) + repr(board_cols), 'rb') as f:
+        train_X_large = pickle.load(f)
+        f.close()
+
+    with open('TrainY' + repr(board_rows) + repr(board_cols), 'rb') as f:
+        train_Y_large = pickle.load(f)
+        f.close()
+    
+    for x in train_X_large:
+        if np.sum(np.absolute(np.array(x))) == 0:
+            game_startindex += 1
+else:
+    clf = NN(num_nodes, boardlist_size, boardlist_size)
+    train_X_large = []
+    train_Y_large = []
 
 game = TicTacToe(board_rows, board_cols, k_to_win)
 
-for game_num in range(n_games):
+for game_num in range(game_startindex, n_games):
     print("Playing game " + repr(game_num) + "...")
 
     if mode == 2:
