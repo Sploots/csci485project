@@ -6,7 +6,7 @@ from TicTacToe import TicTacToe
 
 np.random.seed(0)
 
-mode = 2 # 1 for both randombots, 2 for random vs NN, 3 vs untrained NN
+mode = 3 # 1 for both randombots, 2 for random vs NN, 3 vs untrained NN
 
 # Define the size of the board
 board_rows = 3
@@ -25,8 +25,6 @@ if mode == 2:
     with open('NN' + repr(board_rows) + repr(board_cols), 'rb') as f:
         clf = pickle.load(f)
         f.close()
-elif mode == 3:
-    clf = NN(num_nodes, boardlist_size, boardlist_size)
 
 game = TicTacToe(board_rows, board_cols, k_to_win)
 
@@ -51,6 +49,9 @@ for i in range(n_games):
                 while not game.addmark(val):
                     val = random.randint(0, boardlist_size-1)
             else:
+                if mode == 3:
+                    clf = NN(num_nodes, boardlist_size, boardlist_size)
+
                 boardlist = game.boardlist
 
                 if turn%2:
