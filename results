@@ -1,4 +1,12 @@
-Trained bot(~400 games):
+Trained bot (500 games):
+NNbot win rate: 66.76299999999999%
+NNbot lose rate: 27.767999999999997%
+NNbot tie rate: 5.469%
+Randombot win rate: 27.767999999999997%
+Randombot lose rate: 66.76299999999999%
+Randombot tie rate: 5.469%
+
+Trained bot (400 games):
 NNbot win rate: 61.023%
 NNbot lose rate: 33.721000000000004%
 NNbot tie rate: 5.256%
@@ -29,3 +37,11 @@ NNbot tie rate: 12.759%
 Randombot win rate: 43.516%
 Randombot lose rate: 43.725%
 Randombot tie rate: 12.759%
+
+MCbot vs. Randombot:
+NNbot win rate: 90.322%
+NNbot lose rate: 2.431%
+NNbot tie rate: 7.247000000000001%
+Randombot win rate: 2.431%
+Randombot lose rate: 90.322%
+Randombot tie rate: 7.247000000000001%

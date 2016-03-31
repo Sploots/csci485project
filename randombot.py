@@ -2,11 +2,12 @@ import pickle
 import random
 import numpy as np
 from NN import NN
+from MC import MCbot
 from TicTacToe import TicTacToe
 
 np.random.seed(0)
 
-mode = 3 # 1 for both randombots, 2 for random vs NN, 3 vs untrained NN
+mode = 2 # 1 for both randombots, 2 for random vs NN, 3 vs untrained NN, 4 vs MCbot
 
 # Define the size of the board
 board_rows = 3
@@ -25,6 +26,9 @@ if mode == 2:
     with open('NN' + repr(board_rows) + repr(board_cols), 'rb') as f:
         clf = pickle.load(f)
         f.close()
+elif mode == 4:
+    clf = MCbot(1000)
+    MCmemory = {}
 
 game = TicTacToe(board_rows, board_cols, k_to_win)
 
@@ -48,6 +52,18 @@ for i in range(n_games):
                 val = random.randint(0, boardlist_size-1)
                 while not game.addmark(val):
                     val = random.randint(0, boardlist_size-1)
+            elif mode == 4:
+                boardlist = game.boardlist
+
+                try:
+                    spot = MCmemory[repr(boardlist)]
+                except KeyError:
+                    keyval = repr(boardlist)
+                    spot = clf.predict(game)
+                    MCmemory[keyval] = spot
+
+
+                game.addmark(spot)
             else:
                 if mode == 3:
                     clf = NN(num_nodes, boardlist_size, boardlist_size)
@@ -88,6 +104,14 @@ for i in range(n_games):
         turn += 1
 
     game.boardclear()
+
+    if mode == 4:
+        print("NNbot win rate: " + repr(NNbot['win']/float(i+1)*100) + "%")
+        print("NNbot lose rate: " + repr(NNbot['lose']/float(i+1)*100) + "%")
+        print("NNbot tie rate: " + repr(NNbot['tie']/float(i+1)*100) + "%")
+        print("Randombot win rate: " + repr(Randombot['win']/float(i+1)*100) + "%")
+        print("Randombot lose rate: " + repr(Randombot['lose']/float(i+1)*100) + "%")
+        print("Randombot tie rate: " + repr(Randombot['tie']/float(i+1)*100) + "%")
 
 print("NNbot win rate: " + repr(NNbot['win']/float(n_games)*100) + "%")
 print("NNbot lose rate: " + repr(NNbot['lose']/float(n_games)*100) + "%")
