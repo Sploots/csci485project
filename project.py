@@ -9,7 +9,7 @@ np.random.seed(0)
 phi = 0.1
 
 mode = 2
-continue_mode = False
+continue_mode = True
 
 # Define the size of the board
 board_rows = 3
