@@ -237,7 +237,7 @@ for game_num in range(game_startindex, n_games):
     if not clf.train(train_X, train_Y, num_passes):
         break
 
-    if game_num % 10 == 0:
+    if (game_num+1) % 10 == 0:
         print("Saving data...")
         with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
             pickle.dump(clf,f)

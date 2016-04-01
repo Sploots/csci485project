@@ -44,6 +44,8 @@ class MCbot:
 
                 turn = game.turn
 
+                winner = game.winner()
+
                 while not game.won:
                     val = random.randint(0, boardlist_size-1)
 
@@ -52,25 +54,24 @@ class MCbot:
 
                     winner = game.winner()
 
-                    if winner == 2:
-                        scores[spot] += 1
-                    elif winner == 1:
-                        if not objturn%2:
-                            scores[spot] += 2
-                        #else:
-                            #scores[spot] -= math.exp(-game.turn)
-                    elif winner == -1:
-                        if objturn%2:
-                            scores[spot] += 2
-                        #else:
-                            #scores[spot] -= math.exp(-game.turn)
-
                     turn += 1
+
+                if winner == 2:
+                    scores[spot] += 1
+                elif winner == 1:
+                    if not objturn%2:
+                        scores[spot] += 2
+                    #else:
+                        #scores[spot] -= math.exp(-game.turn)
+                elif winner == -1:
+                    if objturn%2:
+                        scores[spot] += 2
+                    #else:
+                        #scores[spot] -= math.exp(-game.turn)
 
         ##for i in range(boardlist_size):
             ##if objboardlist[i] != 0:
                 ##scores[i] = -n_games
-
 
         if verbose:
             print(np.array(scores))
