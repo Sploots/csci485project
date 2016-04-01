@@ -9,7 +9,8 @@ np.random.seed(0)
 phi = 0.1
 
 mode = 2
-continue_mode = True
+continue_mode = False
+save_every_game = False
 
 # Define the size of the board
 board_rows = 3
@@ -237,7 +238,7 @@ for game_num in range(game_startindex, n_games):
     if not clf.train(train_X, train_Y, num_passes):
         break
 
-    if (game_num+1) % 10 == 0:
+    if (game_num+1) % 10 == 0 or save_every_game:
         print("Saving data...")
         with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
             pickle.dump(clf,f)

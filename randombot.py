@@ -28,7 +28,11 @@ generate_data = False
 train_X_large = []
 train_Y_large = []
 
+# Define whether to automatically train NN after generating data
+auto_train = False
+
 num_nodes = 300
+num_passes = 3000
 
 if mode == 2:
     with open('NN' + repr(board_rows) + repr(board_cols), 'rb') as f:
@@ -265,3 +269,16 @@ print("NNbot tie rate: " + repr(NNbot['tie']/float(n_games)*100) + "%")
 print("Randombot win rate: " + repr(Randombot['win']/float(n_games)*100) + "%")
 print("Randombot lose rate: " + repr(Randombot['lose']/float(n_games)*100) + "%")
 print("Randombot tie rate: " + repr(Randombot['tie']/float(n_games)*100) + "%")
+
+if generate_data and auto_train:
+    print("Training Neural Network with generated data...")
+    clf = NN(num_nodes, boardlist_size, boardlist_size)
+    train_X = np.array(train_X_large)
+    train_Y = np.array(train_Y_large)
+
+    clf.train(train_X, train_Y, num_passes)    
+
+    print("Saving NN...")
+    with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
+        pickle.dump(clf,f)
+        f.close()

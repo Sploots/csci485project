@@ -15,3 +15,44 @@
 - if trained in mode 2, the AI is still bad, but at least does some "sensical" moves (i.e. quite often, if it can win in 1 more move, it will do so)
 - fixed overflow problem
 - testing to see if I rewarding ties works better
+
+*DEALING WITH ISSUES OF BAD NN:
+- Swapped old NN33(500) and ran randombot matches on it. 70+% winrate, so problem isn't with randombot.py's game simulation
+
+- Swapped old 500 data, re-trained a bot:
+NNbot win rate: 42.669000000000004%
+NNbot lose rate: 28.803%
+NNbot tie rate: 28.528%
+Randombot win rate: 28.803%
+Randombot lose rate: 42.669000000000004%
+Randombot tie rate: 28.528%
+
+- Using project.py in continue mode to generate a new NN33 from the continued 500 data
+NNbot win rate: 45.492%
+NNbot lose rate: 47.127%
+NNbot tie rate: 7.381%
+Randombot win rate: 47.127%
+Randombot lose rate: 45.492%
+Randombot tie rate: 7.381%
+
+- used datatest.py to confirm NN code is not problem (still gets good accuracy with sklearn data)
+
+- used diagnose.py to confirm that old successful NN33 has 300 hhdim
+
+- Tried using randombot.py to generate MCbot data AND train, to see if pickling was causing bad data. Freshly generated, unpickled data resulted in:
+NNbot win rate: 39.78%
+NNbot lose rate: 53.022999999999996%
+NNbot tie rate: 7.197000000000001%
+Randombot win rate: 53.022999999999996%
+Randombot lose rate: 39.78%
+Randombot tie rate: 7.197000000000001%
+
+- Used trainmcdata.py on the generated MCbot data, and want to confirm that it gives the same randombot.py win rate, to rule out pickling corruption.
+NNbot win rate: 49.542%
+NNbot lose rate: 47.884%
+NNbot tie rate: 2.574%
+Randombot win rate: 47.884%
+Randombot lose rate: 49.542%
+Randombot tie rate: 2.574%
+
+- Re-running project.py from game 0, wish to see if generated NN33 bots come out with good accuracy
