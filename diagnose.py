@@ -20,6 +20,17 @@ with open('TrainY' + repr(board_rows) + repr(board_cols), 'rb') as f:
     train_Y_large = pickle.load(f)
     f.close()
 
+print("X entries:")
+for i in range(len(train_X_large)-10,len(train_X_large)):
+	print(train_X_large[i])
+
+print("Y entries:")	
+for i in range(len(train_Y_large)-10,len(train_Y_large)):
+
+	print(train_Y_large[i])
+
+print(len(train_X_large))
+print(len(train_Y_large))
 print(clf.nn_hdim)
 
-#clf.train(np.array(train_X_large), np.array(train_Y_large), num_passes=1, verbose=True)
+#clf.train(np.array(train_X_large), np.array(train_Y_large), num_passes=3000, verbose=True)

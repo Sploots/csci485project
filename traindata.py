@@ -6,13 +6,15 @@ import numpy as np
 from NN import NN
 from MC import MCbot
 
+np.random.seed(0)
+
 # Define the size of the board
 board_rows = 3
 board_cols = 3
 boardlist_size = board_rows*board_cols
 
 num_nodes = 300
-num_passes = 3000
+num_passes = 6000
 
 game_startindex = 0
 
@@ -35,7 +37,7 @@ clf = NN(num_nodes, boardlist_size, boardlist_size)
 train_X = np.array(train_X_large)
 train_Y = np.array(train_Y_large)
 
-clf.train(train_X, train_Y, num_passes)
+clf.train(train_X, train_Y, num_passes, print_loss=True)
 
 with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
     pickle.dump(clf,f)

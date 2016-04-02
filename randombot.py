@@ -25,6 +25,7 @@ n_games = 100000
 # Define whether to generate training data
 phi = 0.1
 generate_data = False
+record_winner_only = False
 train_X_large = []
 train_Y_large = []
 
@@ -246,8 +247,19 @@ for game_num in range(0,n_games):
 
     game.boardclear()
 
-    train_X = playerA_X + playerB_X
-    train_Y = playerA_Y + playerB_Y
+    if record_winner_only:
+        if winner == 2:
+            train_X = playerA_X + playerB_X
+            train_Y = playerA_Y + playerB_Y
+        elif winner == -1:
+            train_X = playerA_X
+            train_Y = playerA_Y
+        elif winner == 1:
+            train_X = playerB_X
+            train_Y = playerB_Y
+    else:
+        train_X = playerA_X + playerB_X
+        train_Y = playerA_Y + playerB_Y
 
     train_X_large += train_X
     train_Y_large += train_Y

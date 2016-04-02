@@ -55,4 +55,57 @@ Randombot win rate: 47.884%
 Randombot lose rate: 49.542%
 Randombot tie rate: 2.574%
 
-- Re-running project.py from game 0, wish to see if generated NN33 bots come out with good accuracy
+- Re-running project.py from game 0, wish to see if generated NN33 bots come out with good accuracy.
+	- at 100:
+	NNbot win rate: 59.452000000000005%
+	NNbot lose rate: 25.079%
+	NNbot tie rate: 15.469%
+	Randombot win rate: 25.079%
+	Randombot lose rate: 59.452000000000005%
+	Randombot tie rate: 15.469%
+
+	- at 150:
+	NNbot win rate: 66.024%
+	NNbot lose rate: 24.038999999999998%
+	NNbot tie rate: 9.937%
+	Randombot win rate: 24.038999999999998%
+	Randombot lose rate: 66.024%
+	Randombot tie rate: 9.937%
+
+	- at 200:
+	NNbot win rate: 68.257%
+	NNbot lose rate: 18.316%
+	NNbot tie rate: 13.427%
+	Randombot win rate: 18.316%
+	Randombot lose rate: 68.257%
+	Randombot tie rate: 13.427%
+
+	- at 380:
+	NNbot win rate: 29.497%
+	NNbot lose rate: 46.145%
+	NNbot tie rate: 24.358%
+	Randombot win rate: 46.145%
+	Randombot lose rate: 29.497%
+	Randombot tie rate: 24.358%
+
+	- At 400:
+	NNbot win rate: 65.995%
+	NNbot lose rate: 28.706%
+	NNbot tie rate: 5.299%
+	Randombot win rate: 28.706%
+	Randombot lose rate: 65.995%
+	Randombot tie rate: 5.299%
+
+
+- Added seed(0) to randombot.py and traindata.py, performance appears to be good?
+Not the solution.
+
+- Is rewarding ties the issue? If so, why is the re-training on old 500 data still bad?
+I don't think so. Older commits still rewarded the ties.
+
+- The NN.py the issue, just doesn't show up with sklearn data?
+Older NN.py looks the same at a glance.
+
+- Test older 400 NN33 and data?
+
+- try training on data that is the MCbot only? (no randombot data)

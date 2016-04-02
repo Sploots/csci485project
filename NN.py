@@ -1,6 +1,7 @@
 # Package imports
 import numpy as np
 import math
+import copy
 
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
@@ -36,6 +37,7 @@ class NN:
         num_examples = len(X)
 
         model = self.model
+        nn_output_dim = self.nn_output_dim
         reg_lambda = self.reg_lambda
         W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
 
@@ -52,8 +54,14 @@ class NN:
 
         # Calculating the loss
         for j in range(num_examples):
-            example_probs = probs[j]
-            correct_logprobs.append(np.multiply(-np.log(example_probs),y[j]))
+            example_probs = copy.deepcopy(probs[j])
+            for k in range(nn_output_dim):
+                if example_probs[k] == 0:
+                    example_probs[k] = 0.00001
+
+                example_probs[k] = -math.log(example_probs[k])*y[j][k]
+            
+            correct_logprobs.append(example_probs)
         
         data_loss = np.sum(correct_logprobs)
 
