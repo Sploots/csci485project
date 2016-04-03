@@ -13,8 +13,8 @@ board_rows = 3
 board_cols = 3
 boardlist_size = board_rows*board_cols
 
-num_nodes = 100
-num_passes = 9000
+num_nodes = 400
+num_passes = 6000
 
 game_startindex = 0
 
