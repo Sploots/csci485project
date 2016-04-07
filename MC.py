@@ -61,19 +61,8 @@ class MCbot:
                 elif winner == 1:
                     if not objturn%2:
                         scores[spot] += 2
-                    #else:
-                        #scores[spot] -= math.exp(-game.turn)
                 elif winner == -1:
                     if objturn%2:
                         scores[spot] += 2
-                    #else:
-                        #scores[spot] -= math.exp(-game.turn)
-
-        ##for i in range(boardlist_size):
-            ##if objboardlist[i] != 0:
-                ##scores[i] = -n_games
-
-        if verbose:
-            print(np.array(scores))
 
         return np.argmax(np.array(scores))

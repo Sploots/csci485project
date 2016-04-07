@@ -1,98 +1,78 @@
-import numpy as np
+import sys
+import random
+import copy
 import math
 import pickle
-import copy
-from NN import NN
+import numpy as np
+from MC import MCbot
 from TicTacToe import TicTacToe
 
-np.random.seed(0)
+# define training penalty constant
 phi = 0.1
 
-mode = 2
-continue_mode = False
-save_every_game = False
+args = []
 
-# Define the size of the board
-board_rows = 3
-board_cols = 3
-boardlist_size = board_rows*board_cols
+for arg in sys.argv:
+   args.append(arg)
 
-# Define win condition (# of symbols in a row)
-k_to_win = 3
-
-# Define how many games to play
-n_games = 10000
-
-# Build a model with a n-dimensional hidden layer
-num_passes = 3000
-num_nodes = 300
-
-game_startindex = 0
-
-if continue_mode:
-    with open('NN' + repr(board_rows) + repr(board_cols), 'rb') as f:
-        clf = pickle.load(f)
-        f.close()
-    with open('TrainX' + repr(board_rows) + repr(board_cols), 'rb') as f:
-        train_X_large = pickle.load(f)
-        f.close()
-
-    with open('TrainY' + repr(board_rows) + repr(board_cols), 'rb') as f:
-        train_Y_large = pickle.load(f)
-        f.close()
-    
-    for x in train_X_large:
-        if np.sum(np.absolute(np.array(x))) == 0:
-            game_startindex += 1
+if len(args) != 6:
+    print("Must have exactly 5 commandline arguments: <board rows> <board columns> <k-in-a-row to win> <Monte Carlo bot passes> <# games>")
+    sys.exit()
 else:
-    clf = NN(num_nodes, boardlist_size, boardlist_size)
-    train_X_large = []
-    train_Y_large = []
+    board_rows = int(args[1])
+    board_cols = int(args[2])
+    k_to_win = int(args[3])
+    bot_passes = int(args[4])
+    n_games = int(args[5])
 
+boardlist_size = board_rows*board_cols
 game = TicTacToe(board_rows, board_cols, k_to_win)
+clf = MCbot(bot_passes)
+MCmemory = {}
 
-for game_num in range(game_startindex, n_games):
-    print("Playing game " + repr(game_num) + "...")
+Bot1 = {'win':0, 'lose':0, 'tie':0}
+Bot2 = {'win':0, 'lose':0, 'tie':0}
 
-    if mode == 2:
-        clf = NN(num_nodes, boardlist_size, boardlist_size)
+train_X_large = []
+train_Y_large = []
 
-    game.boardclear()
-    turn = 0;
-    winner = None;
-
+for game_num in range(0,n_games):
     playerA_X = [] # X symbol
     playerB_X = [] # @ symbol
 
     playerA_Y = [] # X symbol
     playerB_Y = [] # @ symbol
 
+    print("Playing game " + repr(game_num) + "...")
+
+    playerturn = random.randint(0,1)
+
+    turn = 0
+
     while not game.won:
         boardlist = game.boardlist
 
         if turn%2:
-            probs = clf.probs(-1*boardlist)
             playerA_X.append(-1*boardlist)
 
         else:
-            probs = clf.probs(boardlist)
             playerB_X.append(copy.deepcopy(boardlist))
 
-        spot = np.argmax(probs)
+        if turn%2 == playerturn:
+            spot = random.randint(0, boardlist_size-1)
+            while not game.addmark(spot):
+                spot = random.randint(0, boardlist_size-1)
+        else:
+            boardlist = game.boardlist
 
-        while not game.addmark(spot):
-            ##print(spot)
-            ##game.printboard()
-            probs[0][spot] = 0
+            try:
+                spot = MCmemory[repr(boardlist)]
+            except KeyError:
+                keyval = repr(boardlist)
+                spot = clf.predict(game)
+                MCmemory[keyval] = spot
 
-            spot = np.argmax(probs)
-
-            # prevent infinite loop
-#            if np.sum(probs[0]) == 0:
-#                for i in range(boardlist_size):
-#                    if boardlist[i] == 0:
-#                        spot = i
-#                        break
+            game.addmark(spot)
 
         Y = []
 
@@ -111,16 +91,16 @@ for game_num in range(game_startindex, n_games):
             playerA_Y.append(Y)
         else:
             playerB_Y.append(Y)
-
+   
         winner = game.winner()
-        ##print("WINNER: ")
-        ##print(winner)
 
         if winner == 0:
             turn += 1
             continue
-
         elif winner == 2:
+            Bot1['tie'] += 1
+            Bot2['tie'] += 1
+
             print("It's a tie!")
             # change all the y values for unavailable spots to 0
             for i in range(len(playerA_Y)):
@@ -134,9 +114,14 @@ for game_num in range(game_startindex, n_games):
                     if playerB_Y[i][j] == -1:
                         playerB_Y[i][j] = 0
 
-            break
-
         elif winner == -1:
+            if turn%2 == playerturn:
+                Bot2['win'] += 1
+                Bot1['lose'] += 1
+            else:
+                Bot1['win'] += 1
+                Bot2['lose'] += 1
+
             print("Player A wins!")
             # change all the y values for unavailable spots to 0
             for i in range(len(playerA_Y)):
@@ -170,9 +155,14 @@ for game_num in range(game_startindex, n_games):
                     elif playerB_Y[i][j] == 1:
                         playerB_Y[i][j] = chosenmove_prob
 
-            break
-
         elif winner == 1:
+            if turn%2 == playerturn:
+                Bot2['win'] += 1
+                Bot1['lose'] += 1
+            else:
+                Bot1['win'] += 1
+                Bot2['lose'] += 1
+
             print("Player B wins!")
             # change all the y values for unavailable spots to 0
             for i in range(len(playerB_Y)):
@@ -206,62 +196,49 @@ for game_num in range(game_startindex, n_games):
                     elif playerA_Y[i][j] == 1:
                         playerA_Y[i][j] = chosenmove_prob
 
-            break
-
+    game.printboard()
     print("Player A_X:")
     print(np.array(playerA_X))
+    print("\n")
     print("Player A_Y:")
     print(np.array(playerA_Y))
+    print("\n")
     print("Player B_X:")
     print(np.array(playerB_X))
+    print("\n")
     print("Player B_Y:")
     print(np.array(playerB_Y))
+    print("\n")
 
-    game.printboard()
+    game.boardclear()
 
-    print(clf.probs(boardlist))
-
-
-    train_X = playerA_X + playerB_X
-    train_Y = playerA_Y + playerB_Y
+    if winner == 2:
+        train_X = playerA_X + playerB_X
+        train_Y = playerA_Y + playerB_Y
+    elif winner == -1:
+        train_X = playerA_X
+        train_Y = playerA_Y
+    elif winner == 1:
+        train_X = playerB_X
+        train_Y = playerB_Y
 
     train_X_large += train_X
     train_Y_large += train_Y
 
-    if mode == 2:
-        train_X = np.array(train_X_large)
-        train_Y = np.array(train_Y_large)
-    else:
-        train_X = np.array(train_X)
-        train_Y = np.array(train_Y)
-
-    if not clf.train(train_X, train_Y, num_passes):
-        break
-
-    if (game_num+1) % 10 == 0 or save_every_game:
+    if (game_num+1) % 10 == 0:
         print("Saving data...")
-        with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
-            pickle.dump(clf,f)
-            f.close()
 
-        with open('TrainX' + repr(board_rows) + repr(board_cols), 'wb') as f:
+        with open('data/features', 'wb') as f:
             pickle.dump(train_X_large,f)
             f.close()
 
-        with open('TrainY' + repr(board_rows) + repr(board_cols), 'wb') as f:
+        with open('data/labels', 'wb') as f:
             pickle.dump(train_Y_large,f)
             f.close()
 
-with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
-    pickle.dump(clf,f)
-    f.close()
-
-with open('TrainX' + repr(board_rows) + repr(board_cols), 'wb') as f:
-    pickle.dump(train_X_large,f)
-    f.close()
-
-with open('TrainY' + repr(board_rows) + repr(board_cols), 'wb') as f:
-    pickle.dump(train_Y_large,f)
-    f.close()
-
-print("Done!")
+print("\nMC Bot win rate: " + repr(Bot1['win']/float(n_games)*100) + "%")
+print("MC Bot lose rate: " + repr(Bot1['lose']/float(n_games)*100) + "%")
+print("MC Bot tie rate: " + repr(Bot1['tie']/float(n_games)*100) + "%\n")
+print("Randombot win rate: " + repr(Bot2['win']/float(n_games)*100) + "%")
+print("Randombot lose rate: " + repr(Bot2['lose']/float(n_games)*100) + "%")
+print("Randombot tie rate: " + repr(Bot2['tie']/float(n_games)*100) + "%\n")

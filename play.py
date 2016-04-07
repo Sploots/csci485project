@@ -1,20 +1,27 @@
+import sys
 import pickle
 import random
 import numpy as np
 from NN import NN
 from TicTacToe import TicTacToe
 
-np.random.seed(0)
+args = []
 
-# Define the size of the board
-board_rows = 3
-board_cols = 3
+for arg in sys.argv:
+   args.append(arg)
+
+if len(args) != 5:
+	print("Must have exactly 3 commandline arguments: <board rows> <board columns> <k-in-a-row to win> <NN model filename>")
+	sys.exit()
+else:
+	board_rows = int(args[1])
+	board_cols = int(args[2])
+	k_to_win = int(args[3])
+	nn_model = args[4]
+
 boardlist_size = board_rows*board_cols
 
-# Define win condition (# of symbols in a row)
-k_to_win = 3
-
-with open('NN' + repr(board_rows) + repr(board_cols), 'rb') as f:
+with open(nn_model, 'rb') as f:
 	clf = pickle.load(f)
 	f.close()
 
@@ -47,9 +54,6 @@ while True:
 				print(-1*boardlist)
 			else:
 				probs = clf.probs(boardlist)
-				print(boardlist)
-
-			print(probs)
 
 			spot = np.argmax(probs)
 

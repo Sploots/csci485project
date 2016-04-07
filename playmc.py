@@ -1,19 +1,25 @@
+import sys
 import random
-import numpy as np
 from MC import MCbot
 from TicTacToe import TicTacToe
 
-np.random.seed(0)
+args = []
 
-# Define the size of the board
-board_rows = 3
-board_cols = 3
+for arg in sys.argv:
+   args.append(arg)
+
+if len(args) != 5:
+	print("Must have exactly 4 commandline arguments: <board rows> <board columns> <k-in-a-row to win> <Monte Carlo bot passes>")
+	sys.exit()
+else:
+	board_rows = int(args[1])
+	board_cols = int(args[2])
+	k_to_win = int(args[3])
+	bot_passes = int(args[4])
+
 boardlist_size = board_rows*board_cols
 
-# Define win condition (# of symbols in a row)
-k_to_win = 3
-
-clf = MCbot(1000)
+clf = MCbot(bot_passes)
 
 game = TicTacToe(board_rows, board_cols, k_to_win)
 

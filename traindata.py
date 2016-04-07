@@ -1,3 +1,4 @@
+import sys
 import pickle
 import random
 import copy
@@ -8,37 +9,46 @@ from MC import MCbot
 
 np.random.seed(0)
 
-# Define the size of the board
-board_rows = 3
-board_cols = 3
-boardlist_size = board_rows*board_cols
+args = []
 
-num_nodes = 300
-num_passes = 6000
+for arg in sys.argv:
+   args.append(arg)
 
-game_startindex = 0
+if len(args) != 5:
+	print("Must have exactly 4 commandline arguments: <features filename> <labels filename> <# hidden layer nodes> <# training passes>")
+	sys.exit()
+else:
+	features = args[1]
+	labels = args[2]
+	num_nodes = int(args[3])
+	num_passes = int(args[4])
 
-with open('TrainX' + repr(board_rows) + repr(board_cols), 'rb') as f:
-    train_X_large = pickle.load(f)
+n_games = 0
+
+with open(features, 'rb') as f:
+    features_train = pickle.load(f)
     f.close()
 
-with open('TrainY' + repr(board_rows) + repr(board_cols), 'rb') as f:
-    train_Y_large = pickle.load(f)
+with open(labels, 'rb') as f:
+    labels_train = pickle.load(f)
     f.close()
 
-for x in train_X_large:
+features_dim = len(features_train[0])
+labels_dim = len(labels_train[0])
+
+for x in features_train:
     if np.sum(np.absolute(np.array(x))) == 0:
-        game_startindex += 1
+        n_games += 1
 
-print("Training on dataset of " + repr(game_startindex) + " games...")
+print("Training on dataset of " + repr(n_games) + " games...")
 
-clf = NN(num_nodes, boardlist_size, boardlist_size)
+clf = NN(num_nodes, features_dim, labels_dim)
 
-train_X = np.array(train_X_large)
-train_Y = np.array(train_Y_large)
+features_train = np.array(features_train)
+labels_train = np.array(labels_train)
 
-clf.train(train_X, train_Y, num_passes, print_loss=True)
+clf.train(features_train, labels_train, num_passes, print_loss=True)
 
-with open('NN' + repr(board_rows) + repr(board_cols), 'wb') as f:
+with open('models/NN' + repr(features_dim) + repr(labels_dim), 'wb') as f:
     pickle.dump(clf,f)
     f.close()

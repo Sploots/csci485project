@@ -3,6 +3,8 @@ import numpy as np
 import math
 import copy
 
+np.random.seed(0)
+
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
 
@@ -13,7 +15,7 @@ class NN:
     nn_input_dim = None
     nn_output_dim = None
 
-    # Gradient descent parameters (I picked these by hand)
+    # Gradient descent parameters
     epsilon = 0.01 # learning rate for gradient descent
     reg_lambda = 0.01 # regularization strength
 
@@ -32,7 +34,7 @@ class NN:
         self.model = { 'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
 
 
-    # Helper function to evaluate the total loss on the dataset
+    # Evaluate the total loss on the dataset
     def __calculate_loss__(self, X, y):
         num_examples = len(X)
 
@@ -72,7 +74,7 @@ class NN:
     # This function learns parameters for the neural network and returns the model.
     # - nn_hdim: Number of nodes in the hidden layer
     # - num_passes: Number of passes through the training data for gradient descent
-    # - print_loss: If True, print the loss every 1000 iterations
+    # - print_loss: If True, print the loss every 100 training passes
     def train(self, X, y, num_passes=20000, print_loss=False, verbose=False):
         num_examples = len(X)
 
@@ -86,55 +88,17 @@ class NN:
         for i in range(0, num_passes):
             # Forward propagation
             z1 = X.dot(W1) + b1
+
             if self.act_fxn == "sigmoid":
                 a1 = sigmoid(z1)
             else:
                 a1 = np.tanh(z1)
-            z2 = a1.dot(W2) + b2
 
-            if verbose:
-                with open('verboselog', 'wb') as f:
-                    f.write("\nW1:\n")
-                    f.write(repr(W1))
-                    f.write("\nB1:\n")
-                    f.write(repr(b1))
-                    f.write("\nZ1:\n")
-                    f.write(repr(z1))
-                    f.write("\nA1:\n")
-                    f.write(repr(a1))
-                    f.write("\nW2:\n")
-                    f.write(repr(W2))
-                    f.write("\nB2:\n")
-                    f.write(repr(b2))
-                    f.write("\nZ2:\n")
-                    f.write(repr(z2))
-                    f.close()
+            z2 = a1.dot(W2) + b2
 
             exp_scores = self.__safeexp__(z2, num_examples)
 
             probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-
-            ## REMOVE LATER
-            if math.isnan(probs[0][0]):
-                with open('errorlog', 'wb') as f:
-                    f.write("\nW1:\n")
-                    f.write(repr(W1))
-                    f.write("\nB1:\n")
-                    f.write(repr(b1))
-                    f.write("\nZ1:\n")
-                    f.write(repr(z1))
-                    f.write("\nA1:\n")
-                    f.write(repr(a1))
-                    f.write("\nW2:\n")
-                    f.write(repr(W2))
-                    f.write("\nB2:\n")
-                    f.write(repr(b2))
-                    f.write("\nZ2:\n")
-                    f.write(repr(z2))
-                    f.write("\EXP:\n")
-                    f.write(repr(exp_scores))
-                    f.close()
-                return False
 
             # Backpropagation
             delta3 = probs
@@ -145,6 +109,7 @@ class NN:
 
             dW2 = (a1.T).dot(delta3)
             db2 = np.sum(delta3, axis=0, keepdims=True)
+
             if self.act_fxn == "sigmoid":
                 delta2 = delta3.dot(W2.T) * a1*(1 - a1)
             else:
@@ -153,7 +118,7 @@ class NN:
             dW1 = np.dot(X.T, delta2)
             db1 = np.sum(delta2, axis=0)
 
-            # Add regularization terms (b1 and b2 don't have regularization terms)
+            # Add regularization terms
             dW2 += reg_lambda * W2
             dW1 += reg_lambda * W1
 
@@ -162,49 +127,13 @@ class NN:
             b1 += -epsilon * db1
             W2 += -epsilon * dW2
             b2 += -epsilon * db2
-
-            ## REMOVE LATER
-            if math.isnan(W1[0][0]) or math.isnan(b1[0][0]) or math.isnan(W2[0][0]) or math.isnan(b2[0][0]):
-                with open('errorlog', 'wb') as f:
-                    f.write("\ndelta2:\n")
-                    f.write(repr(delta2))
-                    f.write("\ndelta3:\n")
-                    f.write(repr(delta3))
-
-                    f.write("\ndW1:\n")
-                    f.write(repr(dW1))
-                    f.write("\ndB1:\n")
-                    f.write(repr(db1))
-
-                    f.write("\ndW2:\n")
-                    f.write(repr(dW2))
-                    f.write("\ndB2:\n")
-                    f.write(repr(db2))
-
-                    f.write("\nW1:\n")
-                    f.write(repr(W1))
-                    f.write("\nB1:\n")
-                    f.write(repr(b1))
-                    f.write("\nZ1:\n")
-                    f.write(repr(z1))
-                    f.write("\nA1:\n")
-                    f.write(repr(a1))
-                    f.write("\nW2:\n")
-                    f.write(repr(W2))
-                    f.write("\nB2:\n")
-                    f.write(repr(b2))
-                    f.write("\nZ2:\n")
-                    f.write(repr(z2))
-                    f.write("\EXP:\n")
-                    f.write(repr(exp_scores))
-                    f.close()
-
-                return False
                      
-            # Optionally print the loss.
-            # This is expensive because it uses the whole dataset, so we don't want to do it too often.
-            if print_loss and i % 1000 == 0:
+            # print the loss
+            if print_loss and i % 100 == 0:
               print("Loss after iteration " + repr(i) + ": " + repr(self.__calculate_loss__(X, y)))
+
+        if print_loss:
+            print("Loss after iteration " + repr(i) + ": " + repr(self.__calculate_loss__(X, y)))
 
         # Assign new parameters to the model
         model = { 'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
@@ -213,7 +142,7 @@ class NN:
 
         return True
 
-    # Helper function to predict an output (0 or 1)
+    # predict a class (one of the output dimensions)
     def predict(self, x):
         model = self.model
         W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
@@ -230,6 +159,7 @@ class NN:
 
         return np.argmax(probs, axis=1)
 
+    # predict probabilities for each output dimension (class)
     def probs(self, x):
         model = self.model
         W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
