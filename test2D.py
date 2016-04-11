@@ -9,14 +9,17 @@ from sklearn.datasets.samples_generator import make_classification
 from sklearn.metrics import accuracy_score
 from sklearn import cross_validation
 
+# Specify test values
+n_classes = 4 # number of classes
+n_samples = 250 # number of samples
+test_fraction = 0.2 # fraction of generated data to set aside as test data
+hidden_layer_dimensions = [1, 2, 4, 8, 16, 32, 64, 128, 256] # hidden layer sizes to train on, must have 9 sizes
+
 # Generate a dataset and plot it
 np.random.seed(0)
-n_classes = 3
-X, y = make_classification(n_samples=250, n_classes=n_classes, n_features=2, n_informative=2, n_redundant=0, random_state=0, n_clusters_per_class=1)
-#n_classes = 2
-#X, y = sklearn.datasets.make_moons(250, noise=0.20)
+X, y = make_classification(n_samples=n_samples, n_classes=n_classes, n_features=2, n_informative=2, n_redundant=0, random_state=0, n_clusters_per_class=1)
+#X, y = sklearn.datasets.make_moons(n_samples, noise=0.20)
 
-test_fraction = 0.2
 X, features_test, y, labels_test = cross_validation.train_test_split(X, y, random_state = 0, test_size = test_fraction)
 
 Y = []
@@ -46,12 +49,10 @@ def plot_decision_boundary(pred_func):
     plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral)
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
 
-plt.figure(figsize=(16, 60))
-
-hidden_layer_dimensions = [1, 2, 4, 8, 16, 32, 64, 128]
+plt.figure(figsize=(60, 60))
 
 for i, nn_hdim in enumerate(hidden_layer_dimensions):
-    plt.subplot(4, 2, i+1)
+    plt.subplot(3, 3, i+1)
     clf = NN(nn_hdim, 2, n_classes)
     print("\nTraining NN with " + repr(nn_hdim) + " hidden layer nodes...")
     clf.train(X, Y, num_passes=2000, print_loss=True)
